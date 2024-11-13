@@ -38,7 +38,7 @@ class ProductController extends Controller
         }
 
         $perPage = $request->input('per_page', 10);
-        $currentPage = $request->input('page', 1);
+        $currentPage = $request->input('page');
         $currentItems = $filteredProducts->slice(($currentPage - 1) * $perPage, $perPage)->values();
         $paginatedProducts = new LengthAwarePaginator(
             $currentItems,

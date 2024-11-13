@@ -39,33 +39,60 @@ const HomePage: React.FC = () => {
     start_date: null,
     end_date: null,
   });
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
 
-  const fetchFilteredProducts = async () => {
+  const fetchProducts = async (page: number) => {
     try {
       setLoading(true);
       const { min_price, max_price, category, start_date, end_date } = filters;
 
       const response = await fetch(
-        `http://127.0.0.1:8001/api/products?min_price=${min_price}&max_price=${max_price}&category=${category}&start_date=${start_date}&end_date=${end_date}`
+        `http://127.0.0.1:8001/api/products?min_price=${min_price}&max_price=${max_price}&category=${category}&start_date=${start_date}&end_date=${end_date}&page=${page}`
       );
       const data = await response.json();
-      if (Array.isArray(data.data)) {
-        setProducts(data.data);
-        console.log("a", data);
-      } else {
-        console.error("Expected an array, but received:", data);
-        setProducts([]);
+
+      if (data.data && Array.isArray(data.data)) {
+        if (data.data.length === 0) {
+          setHasMore(false);
+        } else {
+          setProducts((prevProducts) => [...prevProducts, ...data.data]);
+        }
       }
     } catch (error) {
-      console.error("Error fetching filtered products:", error);
+      console.error("Error fetching products:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchFilteredProducts();
+    setPage(1);
+    setHasMore(true);
+    setProducts([]);
   }, [filters]);
+
+  useEffect(() => {
+    if (hasMore) {
+      fetchProducts(page);
+    }
+  }, [page, filters]);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const bottom =
+        window.innerHeight + document.documentElement.scrollTop ===
+        document.documentElement.offsetHeight;
+      if (bottom && !loading && hasMore) {
+        setPage((prevPage) => prevPage + 1);
+      }
+    };
+
+    window.addEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, [loading, hasMore]);
 
   const handleFilterChange = (event: SelectChangeEvent<string>) => {
     const { name, value } = event.target;
@@ -82,7 +109,7 @@ const HomePage: React.FC = () => {
     }));
   };
 
-  if (loading) {
+  if (loading && page === 1) {
     return (
       <Container
         style={{
@@ -132,7 +159,7 @@ const HomePage: React.FC = () => {
                 onChange={(event) => {
                   const value = event.target.value
                     ? Number(event.target.value)
-                    : 0; // Convert to number
+                    : 0;
                   setFilters((prevFilters) => ({
                     ...prevFilters,
                     min_price: value,
@@ -151,7 +178,7 @@ const HomePage: React.FC = () => {
                 onChange={(event) => {
                   const value = event.target.value
                     ? Number(event.target.value)
-                    : 0; // Convert to number
+                    : 0;
                   setFilters((prevFilters) => ({
                     ...prevFilters,
                     max_price: value,
@@ -198,7 +225,7 @@ const HomePage: React.FC = () => {
           <Button
             variant="contained"
             color="primary"
-            onClick={fetchFilteredProducts}
+            onClick={() => setPage(1)}
           >
             Filtreleri Uygula
           </Button>
@@ -239,6 +266,25 @@ const HomePage: React.FC = () => {
             </Box>
           ))}
         </Box>
+
+        {loading && page > 1 && (
+          <Container
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "50px",
+            }}
+          >
+            <CircularProgress />
+          </Container>
+        )}
+
+        {!hasMore && (
+          <Typography align="center" variant="body2">
+            Daha fazla ürün yok.
+          </Typography>
+        )}
       </Container>
     </LocalizationProvider>
   );
