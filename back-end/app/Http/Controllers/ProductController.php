@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class ProductController extends Controller
 {
@@ -18,25 +20,34 @@ class ProductController extends Controller
         if ($request->has('min_price') && $request->has('max_price')) {
             $minPrice = $request->input('min_price');
             $maxPrice = $request->input('max_price');
-            $filteredProducts = $filteredProducts->filter(function ($product) use ($minPrice, $maxPrice) {
-                return $product['price'] >= $minPrice && $product['price'] <= $maxPrice;
-            });
+            if (!empty($minPrice) && !empty($maxPrice)) {
+                $filteredProducts = $filteredProducts->filter(function ($product) use ($minPrice, $maxPrice) {
+                    return $product['price'] >= $minPrice && $product['price'] <= $maxPrice;
+                });
+            }
         }
 
-        if ($request->has('name')) {
-            $name = strtolower($request->input('name'));
-            $filteredProducts = $filteredProducts->filter(function ($product) use ($name) {
-                return str_contains(strtolower($product['title']), $name);
-            });
-        }
 
         if ($request->has('category')) {
             $category = strtolower($request->input('category'));
-            $filteredProducts = $filteredProducts->filter(function ($product) use ($category) {
-                return strtolower($product['category']) === $category;
-            });
+            if (!empty($category)) {
+                $filteredProducts = $filteredProducts->filter(function ($product) use ($category) {
+                    return strtolower($product['category']) === $category;
+                });
+            }
         }
 
-         return response()->json($filteredProducts->values()->all());
+        $perPage = $request->input('per_page', 10);
+        $currentPage = $request->input('page', 1);
+        $currentItems = $filteredProducts->slice(($currentPage - 1) * $perPage, $perPage)->values();
+        $paginatedProducts = new LengthAwarePaginator(
+            $currentItems,
+            $filteredProducts->count(),
+            $perPage,
+            $currentPage,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        return response()->json($paginatedProducts);
     }
 }
