@@ -26,7 +26,29 @@ class ProductController extends Controller
                 });
             }
         }
-
+        if ($request->has('start_date') && $request->has('end_date')) {
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date');
+        
+            if (!empty($startDate) && !empty($endDate) && $startDate !== 'null' && $endDate !== 'null') {
+                try {
+                    $startDate = preg_replace('/\s\(.*\)$/', '', $startDate);
+                    $endDate = preg_replace('/\s\(.*\)$/', '', $endDate);
+        
+                    $startDate = new \DateTime($startDate);
+                    $endDate = new \DateTime($endDate);
+        
+                    $filteredProducts = $filteredProducts->filter(function ($product) use ($startDate, $endDate) {
+                        $productDate = new \DateTime($product['meta']['createdAt']);
+                        return $productDate >= $startDate && $productDate <= $endDate;
+                    });
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Invalid date format'], 400);
+                }
+            }
+        }
+        
+        
 
         if ($request->has('category')) {
             $category = strtolower($request->input('category'));
@@ -36,7 +58,16 @@ class ProductController extends Controller
                 });
             }
         }
-
+        if ($request->has('name')) {
+            $name = strtolower($request->input('name'));
+            if (!empty($name)) {
+                $filteredProducts = $filteredProducts->filter(function ($product) use ($name) {
+                    return isset($product['title']) && strpos(strtolower($product['title']), $name) !== false;
+                });
+            }
+        }
+        
+        
         $perPage = $request->input('per_page', 10);
         $currentPage = $request->input('page');
         $currentItems = $filteredProducts->slice(($currentPage - 1) * $perPage, $perPage)->values();
@@ -50,4 +81,20 @@ class ProductController extends Controller
 
         return response()->json($paginatedProducts);
     }
+    public function getProductById($id)
+    {
+        $client = new Client();
+        $response = $client->get('https://dummyjson.com/products?limit=200');
+        $products = json_decode($response->getBody(), true)['products'];
+
+        $filteredProducts = collect($products)->firstWhere('id', $id);
+
+        if (!$filteredProducts) {
+            return response()->json(['message' => 'Product not found'], 404);
+        }
+
+        return response()->json($filteredProducts);
+    }
+
+    
 }

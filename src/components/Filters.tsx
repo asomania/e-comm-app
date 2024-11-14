@@ -1,5 +1,5 @@
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setFilters } from "../redux/actions";
 import {
   Box,
   Button,
@@ -14,10 +14,16 @@ import {
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
+import type { typeofFilters } from "../types/filter";
+import { setFilters } from "../redux/filterState";
 
-const Filters = () => {
+interface FiltersProps {
+  clickFilter: () => void;
+}
+
+const Filters: React.FC<FiltersProps> = ({ clickFilter }) => {
   const dispatch = useDispatch();
-  const filters = useSelector((state) => state.filters);
+  const filters = useSelector((state: typeofFilters) => state.filters);
 
   const handleFilterChange = (event: SelectChangeEvent<string>) => {
     const { name, value } = event.target;
@@ -59,10 +65,7 @@ const Filters = () => {
                 const value = event.target.value
                   ? Number(event.target.value)
                   : 0;
-                setFilters((prevFilters) => ({
-                  ...prevFilters,
-                  min_price: value,
-                }));
+                dispatch(setFilters({ ...filters, min_price: value }));
               }}
             />
           </Box>
@@ -78,10 +81,7 @@ const Filters = () => {
                 const value = event.target.value
                   ? Number(event.target.value)
                   : 0;
-                setFilters((prevFilters) => ({
-                  ...prevFilters,
-                  max_price: value,
-                }));
+                dispatch(setFilters({ ...filters, max_price: value }));
               }}
             />
           </Box>
@@ -89,7 +89,6 @@ const Filters = () => {
           <Box flex={1} minWidth={250}>
             <DesktopDatePicker
               label="Başlangıç Tarihi"
-              value={filters.start_date}
               onChange={handleDateChange("start_date")}
               slots={{
                 textField: TextField,
@@ -106,7 +105,6 @@ const Filters = () => {
           <Box flex={1} minWidth={250}>
             <DesktopDatePicker
               label="Bitiş Tarihi"
-              value={filters.end_date}
               onChange={handleDateChange("end_date")}
               slots={{
                 textField: TextField,
@@ -121,7 +119,13 @@ const Filters = () => {
           </Box>
         </Box>
         <Divider style={{ margin: "20px 0" }} />
-        <Button variant="contained" color="primary" onClick={() => setPage(1)}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => {
+            clickFilter();
+          }}
+        >
           Filtreleri Uygula
         </Button>
       </Box>
