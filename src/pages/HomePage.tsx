@@ -66,6 +66,7 @@ const HomePage: React.FC = () => {
 
       if (data.data.length === 0) {
         setHasMore(false);
+        console.log("sildi");
         setProducts([]);
       } else {
         setProducts((prevProducts) => [...prevProducts, ...data.data]);
@@ -81,6 +82,7 @@ const HomePage: React.FC = () => {
     debounce((value: string) => {
       setTitle(value);
       setPage(1);
+      console.log("sildi");
       setProducts([]);
     }, 500),
     []
@@ -89,6 +91,7 @@ const HomePage: React.FC = () => {
 
   const filterClick: () => void = () => {
     setPage(1);
+    console.log("sildi");
     setProducts([]);
     fetchProducts(1);
   };
@@ -144,8 +147,8 @@ const HomePage: React.FC = () => {
         </Typography>
 
         <Filters clickFilter={filterClick} />
-        {!loading ? (
-          <Box display="flex" flexWrap="wrap" justifyContent="space-between">
+        {products.length ? (
+          <Box display="flex" flexWrap="wrap" gap={12}>
             {products.map((product) => (
               <Box
                 key={product.id}
@@ -191,6 +194,20 @@ const HomePage: React.FC = () => {
           >
             <CircularProgress />
           </Container>
+        )}
+        {loading && products.length ? (
+          <Container
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "50px",
+            }}
+          >
+            <CircularProgress />
+          </Container>
+        ) : (
+          ""
         )}
 
         {!hasMore && (

@@ -48,8 +48,10 @@ const Filters: React.FC<FiltersProps> = ({ clickFilter }) => {
                 name="category"
               >
                 <MenuItem value="electronics">Elektronik</MenuItem>
-                <MenuItem value="fashion">Moda</MenuItem>
+                <MenuItem value="">Tümü</MenuItem>
                 <MenuItem value="home">Ev & Yaşam</MenuItem>
+                <MenuItem value="fragrances">Parfüm</MenuItem>
+                <MenuItem value="beauty">Güzellik</MenuItem>
               </Select>
             </FormControl>
           </Box>
