@@ -15,6 +15,7 @@ import type { typeofFilters } from "../types/filter";
 import Filters from "../components/Filters";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
+import { getProducts } from "../api/products";
 import IconButton from "@mui/material/IconButton";
 interface Product {
   id: number;
@@ -48,25 +49,11 @@ const HomePage: React.FC = () => {
   const fetchProducts = async (page: number) => {
     try {
       setLoading(true);
-      const { min_price, max_price, category, start_date, end_date } = filters;
-      let formattedStartDate = start_date;
-      let formattedEndDate = end_date;
+      const response = await getProducts(filters, page, title);
 
-      if (start_date && start_date !== null) {
-        formattedStartDate = new Date(start_date).toISOString();
-      }
-      if (end_date && end_date !== null) {
-        formattedEndDate = new Date(end_date).toISOString();
-      }
-
-      const response = await fetch(
-        `http://127.0.0.1:8001/api/products?min_price=${min_price}&max_price=${max_price}&category=${category}&start_date=${formattedStartDate}&end_date=${formattedEndDate}&page=${page}&name=${title}`
-      );
-      const data = await response.json();
-
-      if (data.data.length === 0) {
+      const data = await response.data;
+      if (data.length === 0) {
         setHasMore(false);
-        console.log("sildi");
         setProducts([]);
       } else {
         setProducts((prevProducts) => [...prevProducts, ...data.data]);
@@ -82,16 +69,12 @@ const HomePage: React.FC = () => {
     debounce((value: string) => {
       setTitle(value);
       setPage(1);
-      console.log("sildi");
       setProducts([]);
     }, 500),
     []
   );
-  /*  */
-
   const filterClick: () => void = () => {
     setPage(1);
-    console.log("sildi");
     setProducts([]);
     fetchProducts(1);
   };
@@ -148,7 +131,7 @@ const HomePage: React.FC = () => {
 
         <Filters clickFilter={filterClick} />
         {products.length ? (
-          <Box display="flex" flexWrap="wrap" gap={12}>
+          <Box display="flex" flexWrap="wrap" gap={12} justifyContent="center">
             {products.map((product) => (
               <Box
                 key={product.id}

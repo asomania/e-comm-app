@@ -11,6 +11,7 @@ import {
   Rating,
 } from "@mui/material";
 import { Helmet } from "react-helmet-async";
+import { getProductById } from "../api/products";
 
 interface Product {
   id: number;
@@ -33,10 +34,8 @@ const ProductDetails: React.FC = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch(
-          `http://127.0.0.1:8001/api/products/${id}`
-        );
-        const data = await response.json();
+        const response = await getProductById(id);
+        const data = await response;
         setProduct(data);
       } catch (error) {
         console.error("Ürün yüklenirken hata oluştu:", error);
