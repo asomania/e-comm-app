@@ -132,9 +132,9 @@ const HomePage: React.FC = () => {
         <Filters clickFilter={filterClick} />
         {products.length ? (
           <Box display="flex" flexWrap="wrap" gap={12} justifyContent="center">
-            {products.map((product) => (
+            {products.map((product, index) => (
               <Box
-                key={product.id}
+                key={index}
                 flex={1}
                 minWidth={300}
                 maxWidth={300}
