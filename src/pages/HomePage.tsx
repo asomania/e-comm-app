@@ -114,20 +114,24 @@ const HomePage: React.FC = () => {
   return (
     <>
       <Container>
-        <InputBase
-          sx={{ ml: 1, flex: 1 }}
-          placeholder="Search"
-          inputProps={{ "aria-label": "search" }}
-          onChange={(event) => {
-            debouncedSetTitle(event.target.value);
-          }}
-        />
-        <IconButton type="button" sx={{ p: "10px" }} aria-label="search">
-          <SearchIcon />
-        </IconButton>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Ürün Listesi
-        </Typography>
+        <Box display="flex" gap={12} marginTop={4}>
+          <Typography variant="h4" component="h1" gutterBottom>
+            Ürün Listesi
+          </Typography>
+          <Box alignItems="center" justifyContent="center">
+            <InputBase
+              sx={{ ml: 1, flex: 2, minWidth: 500 }}
+              placeholder="Search"
+              inputProps={{ "aria-label": "search" }}
+              onChange={(event) => {
+                debouncedSetTitle(event.target.value);
+              }}
+            />
+            <IconButton type="button" sx={{ p: "10px" }} aria-label="search">
+              <SearchIcon />
+            </IconButton>
+          </Box>
+        </Box>
 
         <Filters clickFilter={filterClick} />
         {products.length ? (

@@ -37,8 +37,8 @@ const Filters: React.FC<FiltersProps> = ({ clickFilter }) => {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Box mb={4}>
-        <Box display="flex" flexWrap="wrap" gap={3}>
-          <Box flex={1} minWidth={250}>
+        <Box display="flex" flexWrap="wrap" gap={4}>
+          <Box flex={2} minWidth={250}>
             <FormControl fullWidth>
               <InputLabel id="category-label">Kategori</InputLabel>
               <Select
@@ -56,7 +56,7 @@ const Filters: React.FC<FiltersProps> = ({ clickFilter }) => {
             </FormControl>
           </Box>
 
-          <Box flex={1} minWidth={250}>
+          <Box flex={2} minWidth={250}>
             <TextField
               fullWidth
               label="Minimum Fiyat"
@@ -64,15 +64,13 @@ const Filters: React.FC<FiltersProps> = ({ clickFilter }) => {
               name="min_price"
               value={filters.min_price}
               onChange={(event) => {
-                const value = event.target.value
-                  ? Number(event.target.value)
-                  : 0;
+                const value = event.target.value && Number(event.target.value);
                 dispatch(setFilters({ ...filters, min_price: value }));
               }}
             />
           </Box>
 
-          <Box flex={1} minWidth={250}>
+          <Box flex={2} minWidth={250}>
             <TextField
               fullWidth
               label="Maksimum Fiyat"
@@ -87,7 +85,7 @@ const Filters: React.FC<FiltersProps> = ({ clickFilter }) => {
               }}
             />
           </Box>
-
+          <Box flex={2} minWidth={250}></Box>
           <Box flex={1} minWidth={250}>
             <DesktopDatePicker
               label="Başlangıç Tarihi"
